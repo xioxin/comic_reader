@@ -89,13 +89,13 @@ class _ReaderThumbnailBarState extends State<ReaderThumbnailBar>
   void dispose() {
     activeAnimationController.dispose();
     stateSubscription.cancel();
+    super.dispose();
   }
 
   bool get active => panOffset != null;
 
   jump(Offset offset, double width, double padding) {
     final index = getIndex(offset, width, padding);
-    print("jump: $index");
     widget.controller.jumpToIndex(index);
   }
 

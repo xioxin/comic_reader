@@ -251,7 +251,6 @@ class ReaderController extends ChangeNotifier {
       final newPageInfo = pageNumber.copyWith(subPage: subPage);
       if (currentPageNumber == newPageInfo) return;
       currentPageNumber = newPageInfo;
-      print("current: $currentPageNumber");
     });
   }
 
@@ -330,12 +329,10 @@ class ReaderController extends ChangeNotifier {
     }
 
     if (!currentPageNumber.equalsIgnoreSubPage(pageNumberPageMap[currentPage])) {
-      print("buildPageNumberData jump");
       jumpToPage(currentPage);
       change = true;
     }
     if (change && !noRefresh) {
-      print("change _stateChangeCtrl");
       _stateChangeCtrl.add(null);
     }
   }
@@ -363,8 +360,6 @@ class ReaderController extends ChangeNotifier {
     if(mode.length == statistics.length) return;
 
     if(modeRatio != mode.first) {
-      print(mode);
-      print(statistics);
       modeRatio = mode.first;
     }
 
@@ -403,11 +398,9 @@ class ReaderController extends ChangeNotifier {
       if (sizeMap[page]!.width == width &&
           sizeMap[page]!.height == height) return;
     }
-    // print("setImageSize index: $page, width: $width, height: $height, isThumbnail: $isThumbnail");
     sizeMap[page] = ReaderImageSize(page, width, height);
     _imageSizeChangeCtrl.add(getImageSize(page));
     if (sizeMap.length > 6) {
-      // 大于4张开始计算
       calculationModeRatio();
     }
     buildPageNumberData();
@@ -520,7 +513,6 @@ class ReaderController extends ChangeNotifier {
   }
 
   void jumpToIndex(int index) {
-    print("jump to index: $index");
     if (_itemScrollController?.isAttached ?? false) {
       _itemScrollController?.jumpTo(index: index);
     }
@@ -546,14 +538,6 @@ class ReaderController extends ChangeNotifier {
     }
     return _itemScrollController!
         .scrollTo(index: index, duration: duration, curve: curve);
-  }
-
-  printPagesDebug() {
-    final direction = List.generate(itemCount, (index) {
-      if (imageSize[index] == null) return "?";
-      return imageSize[index]!.aspectRatio > 1 ? "L" : "P";
-    }).join(" ");
-    print("direction: $direction");
   }
 
   @override

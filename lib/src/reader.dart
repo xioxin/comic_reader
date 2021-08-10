@@ -35,9 +35,6 @@ class Reader extends StatefulWidget {
     this.separatorBuilder,
     this.padding = const EdgeInsets.all(0),
   }) : super(key: key) {
-    // controller.imageSizeChange.listen((event) {
-    //   print(event);
-    // });
   }
 
   @override
