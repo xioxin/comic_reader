@@ -11,7 +11,7 @@ typedef ReaderThumbnailBarFrameBuilder = Widget Function(BuildContext context,
 
 class ReaderThumbnailBar extends StatefulWidget {
   final ReaderController controller;
-  final ImageProviderBuilder imageBuilder;
+  final ImageStreamLoader imageLoader;
   final BoxDecoration? backgroundDecoration;
   final ReaderImageLoadingBuilder? loadingBuilder;
   final ReaderImageErrorBuilder? errorBuilder;
@@ -37,7 +37,7 @@ class ReaderThumbnailBar extends StatefulWidget {
   const ReaderThumbnailBar({
     Key? key,
     required this.controller,
-    required this.imageBuilder,
+    required this.imageLoader,
     this.loadingBuilder,
     this.errorBuilder,
     this.frameBuilder,
@@ -119,7 +119,7 @@ class _ReaderThumbnailBarState extends State<ReaderThumbnailBar>
     final image = ReaderImage(
       controller: widget.controller,
       pageInfo: pageInfo,
-      imageBuilder: widget.imageBuilder,
+      imageLoader: widget.imageLoader,
       loadingBuilder: widget.loadingBuilder,
       errorBuilder: widget.errorBuilder,
       // frameBuilder: widget.frameBuilder,

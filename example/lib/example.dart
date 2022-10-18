@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:comic_reader/comic_reader.dart';
@@ -325,32 +326,32 @@ class _ReaderExampleState extends State<ReaderExample> {
               loadingBuilder: readerLoading,
               backgroundDecoration: BoxDecoration(color: Colors.white),
               controller: controller,
-              imageBuilder: (context, page) async {
-                return NetworkImageQuickSize(imageUrls[page],
-                    onImageSize: (size) {
-                      controller.setImageSize(page, size.width, size.height);
-                      // Theme.of(context).textTheme.subtitle1.copyWith()
-                    });
+              imageLoader: (context, page, StreamController<ReaderImageChunkEvent> chunkEvents) async {
+                // return NetworkImageQuickSize(imageUrls[page],
+                //     onImageSize: (size) {
+                //       controller.setImageSize(page, size.width, size.height);
+                //       // Theme.of(context).textTheme.subtitle1.copyWith()
+                //     });
               },
             ),
           ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: ReaderThumbnailBar(
-              controller: controller,
-              barHeight: 70,
-              imageBuilder: (BuildContext context, int page) async {
-                return NetworkImageQuickSize(thumbnailUrls[page],
-                    onImageSize: (size) {
-                  controller.setImageSize(page, size.width, size.height);
-                });
-              },
-              loadingBuilder: thumbnailLoading,
-              frameBuilder: thumbnailFrame,
-            ),
-          ),
+          // Positioned(
+          //   bottom: 0,
+          //   left: 0,
+          //   right: 0,
+          //   child: ReaderThumbnailBar(
+          //     controller: controller,
+          //     barHeight: 70,
+          //     imageBuilder: (BuildContext context, int page) async {
+          //       return NetworkImageQuickSize(thumbnailUrls[page],
+          //           onImageSize: (size) {
+          //         controller.setImageSize(page, size.width, size.height);
+          //       });
+          //     },
+          //     loadingBuilder: thumbnailLoading,
+          //     frameBuilder: thumbnailFrame,
+          //   ),
+          // ),
           Positioned(
             top: 0,
             left: 0,

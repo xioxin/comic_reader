@@ -2,9 +2,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import './reader_controller.dart';
+import 'reader_image_provider.dart';
 
-typedef ImageProviderBuilder = Future<ImageProvider> Function(
-    BuildContext context, int page);
+// typedef ImageProviderBuilder = Future<ImageProvider> Function(
+//     BuildContext context, int page);
+
+typedef ImageStreamLoader = Future<Stream<List<int>>> Function(
+    BuildContext context, int page, StreamController<ReaderImageChunkEvent> chunkEvents);
 
 typedef ReaderImageLoadingBuilder = Widget Function(
     BuildContext context,
@@ -24,7 +28,7 @@ class ReaderImage extends StatefulWidget {
 
   final ReaderController controller;
   final ReaderPageInfo pageInfo;
-  final ImageProviderBuilder imageBuilder;
+  final ImageStreamLoader imageLoader;
   final ReaderImageLoadingBuilder? loadingBuilder;
   final ReaderImageErrorBuilder? errorBuilder;
   final String cushionPrefix;
@@ -32,7 +36,7 @@ class ReaderImage extends StatefulWidget {
   const ReaderImage({
     required this.controller,
     required this.pageInfo,
-    required this.imageBuilder,
+    required this.imageLoader,
     this.loadingBuilder,
     this.errorBuilder,
     this.cushionPrefix = '',
@@ -67,22 +71,20 @@ class _ReaderImageState extends State<ReaderImage> {
     return image;
   }
 
-  Map<String, Future<ImageProvider>> get providerCache => widget.controller.providerCache;
+  // Map<String, Future<ImageProvider>> get providerCache => widget.controller.providerCache;
 
-  Future<ImageProvider> getProvider(int index) {
+  ReaderImageProvider getProvider(int index) {
     final key = "${widget.cushionPrefix}-$index";
-    if (providerCache.containsKey(key)) {
-      return providerCache[key]!;
-    }
-    providerCache[key] = widget.imageBuilder(context, index);
-    return providerCache[key]!;
+    final provider = ReaderImageProvider(key, (chunkEvent) => widget.imageLoader(context, index, chunkEvent));
+    provider.sizeCallback = (Size size) => widget.controller.setImageSize(index, size.width, size.height);
+    return provider;
   }
 
   Future<ImageInfo?> preCacheImage(int index, {
     Size? size,
     ImageErrorListener? onError,
   }) async {
-    final provider = await getProvider(index);
+    final provider = getProvider(index);
     final ImageConfiguration config = createLocalImageConfiguration(context, size: size);
     final Completer<void> completer = Completer<void>();
     final ImageStream stream = provider.resolve(config);
@@ -169,29 +171,13 @@ class _ReaderImageState extends State<ReaderImage> {
           final size = ratioSnapshot.data!;
           return AspectRatio(
               aspectRatio: size.aspectRatio / 2,
-              child: FutureBuilder<ImageProvider>(
-                  future: getProvider(page),
-                  builder: (BuildContext context,
-                      AsyncSnapshot imageSnapshot) {
-                    if (imageSnapshot.hasError) {
-                      return (widget.errorBuilder ??
-                          _defaultImageErrorBuilder)(context, page,
-                          imageSnapshot.error!, imageSnapshot.stackTrace);
-                    }
-                    if (imageSnapshot.hasData) {
-                      final image = imageSnapshot.data!;
-                      return Image(
-                        image: image,
-                        fit: BoxFit.fitHeight,
-                        alignment: alignment,
-                        loadingBuilder: _imageLoadingBuilder(page),
-                        errorBuilder: _imageErrorBuilder(page),
-                      );
-                    }
-                    return (widget.loadingBuilder ??
-                        _defaultImageLoadingBuilder)(
-                        context, page, null);
-                  }));
+              child: Image(
+                image: getProvider(page),
+                fit: BoxFit.fitHeight,
+                alignment: alignment,
+                loadingBuilder: _imageLoadingBuilder(page),
+                errorBuilder: _imageErrorBuilder(page),
+              ));
         });
   }
 
@@ -203,28 +189,12 @@ class _ReaderImageState extends State<ReaderImage> {
           final size = ratioSnapshot.data!;
           return AspectRatio(
               aspectRatio: size.aspectRatio,
-              child: FutureBuilder<ImageProvider>(
-                  future: getProvider(index),
-                  builder: (BuildContext context,
-                      AsyncSnapshot imageSnapshot) {
-                    if (imageSnapshot.hasError) {
-                      return (widget.errorBuilder ??
-                          _defaultImageErrorBuilder)(context, index,
-                          imageSnapshot.error!, imageSnapshot.stackTrace);
-                    }
-                    if (imageSnapshot.hasData) {
-                      final image = imageSnapshot.data!;
-                      return Image(
-                        image: image,
-                        fit: BoxFit.fill,
-                        loadingBuilder: _imageLoadingBuilder(index),
-                        errorBuilder: _imageErrorBuilder(index),
-                      );
-                    }
-                    return (widget.loadingBuilder ??
-                        _defaultImageLoadingBuilder)(
-                        context, index, null);
-                  }));
+              child: Image(
+                image: getProvider(index),
+                fit: BoxFit.fill,
+                loadingBuilder: _imageLoadingBuilder(index),
+                errorBuilder: _imageErrorBuilder(index),
+              ));
         });
   }
 

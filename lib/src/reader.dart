@@ -16,7 +16,7 @@ typedef ReaderSeparatorBuilder = Widget Function(
 
 class Reader extends StatefulWidget {
   final ReaderController controller;
-  final ImageProviderBuilder imageBuilder;
+  final ImageStreamLoader imageLoader;
   final ReaderImageLoadingBuilder? loadingBuilder;
   final ReaderImageErrorBuilder? errorBuilder;
   final BoxDecoration? backgroundDecoration;
@@ -26,7 +26,7 @@ class Reader extends StatefulWidget {
 
   Reader({
     Key? key,
-    required this.imageBuilder,
+    required this.imageLoader,
     required this.controller,
     this.loadingBuilder,
     this.errorBuilder,
@@ -34,8 +34,7 @@ class Reader extends StatefulWidget {
     this.frameBuilder,
     this.separatorBuilder,
     this.padding = const EdgeInsets.all(0),
-  }) : super(key: key) {
-  }
+  }) : super(key: key);
 
   @override
   State<Reader> createState() => _ReaderState();
@@ -61,7 +60,7 @@ class _ReaderState extends State<Reader> {
     final image = ReaderImage(
       controller: widget.controller,
       pageInfo: pageInfo,
-      imageBuilder: widget.imageBuilder,
+      imageLoader: widget.imageLoader,
       loadingBuilder: widget.loadingBuilder,
       errorBuilder: widget.errorBuilder,
       cushionPrefix: 'image',
